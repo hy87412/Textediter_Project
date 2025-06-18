@@ -21,6 +21,9 @@ class Textediter(QMainWindow):
         self.create_actions()
         self.create_menu()
 
+        self.statusBar().showMessage("Ready")
+        self.text_edit.textChanged.connect(self.update_status_bar)
+
         self.setWindowTitle("Textediter")
         self.setGeometry(100, 100, 800, 600)
         self.setStyleSheet("""
@@ -50,7 +53,6 @@ class Textediter(QMainWindow):
                     color: white;
                 }
             """)
-        self.statusBar().showMessage("Ready")
         self.show()
 
     def create_actions(self):
@@ -137,6 +139,11 @@ class Textediter(QMainWindow):
                 json.dump(settings, f, indent=4)
         except Exception as e:
             QMessageBox.warning(self, "Error", f"failed to save settings : {e}")
+
+    def update_status_bar(self):
+        text = self.text_edit.toPlainText()
+        byte_count = len(text.encode('utf-8'))
+        self.statusBar().showMessage(f"byte : {byte_count}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
