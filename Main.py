@@ -46,6 +46,9 @@ class Textediter(QMainWindow):
                 QMenu::item:selected {
                     background-color: #505357;
                 }
+                QStatusBar{
+                    color: white;
+                }
             """)
         self.statusBar().showMessage("Ready")
         self.show()
