@@ -1,4 +1,6 @@
 import sys
+import json
+import os
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QTextEdit, QAction,
                              QFileDialog, QMessageBox, QInputDialog)
 from PyQt5.QtGui import QIcon, QFont
@@ -7,7 +9,8 @@ from PyQt5.QtGui import QIcon, QFont
 class Textediter(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.font_size = 14
+        settings = self.load_settings()
+        self.font_size = settings["font_size"]
         self.init_ui()
 
     def init_ui(self):
@@ -109,8 +112,28 @@ class Textediter(QMainWindow):
         if ok:
             self.font_size = size
             self.text_edit.setFont(QFont("Consolas", self.font_size))
+            self.save_settings()
             self.statusBar().showMessage(f"Font size set to {size}")
 
+    def load_settings(self):
+        default_settings = {"font_size"}
+        if os.path.exists("settings.json"):
+            try:
+                with open("settings.json", "r", encoding="utf-8") as f:
+                    settings = json.load(f)
+                    return settings
+            except Exception:
+                return default_settings
+        else:
+            return default_settings
+
+    def save_settings(self):
+        settings = {"font_size": self.font_size}
+        try:
+            with open("settings.json", "w", encoding="utf-8") as f:
+                json.dump(settings, f, indent=4)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"failed to save settings : {e}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
