@@ -143,7 +143,8 @@ class Textediter(QMainWindow):
     def update_status_bar(self):
         text = self.text_edit.toPlainText()
         byte_count = len(text.encode('utf-8'))
-        self.statusBar().showMessage(f"byte : {byte_count}")
+        char_count = len(text)
+        self.statusBar().showMessage(f"byte : {byte_count}, char : {char_count}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
