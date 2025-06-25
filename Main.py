@@ -1,10 +1,66 @@
 import sys
 import json
 import os
+
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QTextEdit, QAction,
                              QFileDialog, QMessageBox, QInputDialog)
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QFont
 
+dark_theme = """
+    QMainWindow {
+        background-color: #2b2b2b;
+    }
+    QTextEdit {
+        background-color: #1e1e1e;
+        color: #dcdcdc;
+        border: none;
+    }
+    QMenuBar {
+        background-color: #2b2b2b;
+        color: white;
+    }
+    QMenuBar::item:selected {
+        background-color: #3c3f41;
+    }
+    QMenu {
+        background-color: #3c3f41;
+        color: white;
+    }
+    QMenu::item:selected {
+        background-color: #505357;
+    }
+    QStatusBar{
+        color: white;
+    }
+    """
+light_theme = """
+QMainWindow {
+    background-color: #ffffff;
+}
+QTextEdit {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ccc;
+}
+QMenuBar {
+    background-color: #f0f0f0;
+    color: black;
+}
+QMenuBar::item:selected {
+    background-color: #d0d0d0;
+}
+QMenu {
+    background-color: #ffffff;
+    color: black;
+}
+QMenu::item:selected {
+    background-color: #e0e0e0;
+}
+QStatusBar {
+    color: black;
+    background-color: #f0f0f0;
+}
+"""
 
 class Textediter(QMainWindow):
     def __init__(self):
@@ -14,6 +70,8 @@ class Textediter(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        settings = self.load_settings()
+
         self.text_edit = QTextEdit()
         self.setCentralWidget(self.text_edit)
         self.text_edit.setFont(QFont("Consolas", self.font_size))
@@ -26,33 +84,7 @@ class Textediter(QMainWindow):
 
         self.setWindowTitle("Textediter")
         self.setGeometry(100, 100, 800, 600)
-        self.setStyleSheet("""
-                QMainWindow {
-                    background-color: #2b2b2b;
-                }
-                QTextEdit {
-                    background-color: #1e1e1e;
-                    color: #dcdcdc;
-                    border: none;
-                }
-                QMenuBar {
-                    background-color: #2b2b2b;
-                    color: white;
-                }
-                QMenuBar::item:selected {
-                    background-color: #3c3f41;
-                }
-                QMenu {
-                    background-color: #3c3f41;
-                    color: white;
-                }
-                QMenu::item:selected {
-                    background-color: #505357;
-                }
-                QStatusBar{
-                    color: white;
-                }
-            """)
+        self.setStyleSheet(dark_theme)
         self.show()
 
     def create_actions(self):
@@ -75,6 +107,9 @@ class Textediter(QMainWindow):
         self.fontsize_action = QAction("set font size", self)
         self.fontsize_action.triggered.connect(self.set_font_size)
 
+        self.choose_theme_action = QAction("Choose Theme", self)
+        self.choose_theme_action.triggered.connect(self.choose_theme)
+
 
 
     def create_menu(self):
@@ -88,6 +123,7 @@ class Textediter(QMainWindow):
 
         settings_menu = self.menuBar().addMenu("settings")
         settings_menu.addAction(self.fontsize_action)
+        settings_menu.addAction(self.choose_theme_action)
 
     def new_file(self):
         self.text_edit.clear()
@@ -119,6 +155,18 @@ class Textediter(QMainWindow):
             self.text_edit.setFont(QFont("Consolas", self.font_size))
             self.save_settings()
             self.statusBar().showMessage(f"Font size set to {size}")
+
+    def choose_theme(self):
+        themes = ["dark", "light"]
+        theme, ok = QInputDialog.getItem(self, "Choose Theme", "Select a theme:", themes, 0, False)
+        if ok and theme:
+            self.apply_theme(theme.lower())
+
+    def apply_theme(self, theme_name):
+        if theme_name == "dark":
+            self.setStyleSheet(dark_theme)
+        elif theme_name == "light":
+            self.setStyleSheet(light_theme)
 
     def load_settings(self):
         default_settings = {"font_size"}
